@@ -1,5 +1,8 @@
 #include "main.h"
 
+char *program_name;
+unsigned long in_count = 0;
+
 /**
   * main - launch the shell
   * @argc: number of arguments
@@ -16,11 +19,13 @@ int main(int argc, char *argv[], char *env[])
 	char  *prompt = "($) ", *delim = " \n";
 	char **sargv;
 
+	program_name = argv[0];
 	while (1 && argc == 1)
 	{
 		if (isatty(STDIN_FILENO))
 			write(STDOUT_FILENO, prompt, 4);
 		reads = getline(&lineptr, &n, stdin);
+		in_count++;
 		if (reads == -1)
 		{
 			if (!isatty(STDIN_FILENO))
@@ -29,7 +34,7 @@ int main(int argc, char *argv[], char *env[])
 		}
 		sargv = _strtok(lineptr, delim);
 		if (sargv)
-			exec(sargv, argv[0], env);
+			exec(sargv, env);
 	}
 	free(sargv);
 	free(lineptr);

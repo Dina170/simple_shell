@@ -1,26 +1,54 @@
 #include "main.h"
+
 /**
  * shell_exit - exits the shell
- * Return: void
+ * @args: array of str of shell arguments
  */
-
 void shell_exit(char **args)
 {
-	exit(0);
+	if (args[1])
+	{
+		char arg_status;
+
+		int status = _atoi(args[1], &arg_status);
+		if (!arg_status && status >= 0)
+			exit(status);
+		else
+		{
+			char buf[100];
+			size_t len = 23 + _strlen(program_name)
+				+ _strlen(my_itoa(in_count, buf, 10))
+				+ _strlen(args[0])
+				+ _strlen(args[1]);
+			char *error_msg = malloc(len);
+			_strcpy(error_msg, program_name);
+			_strcat(error_msg, ": ");
+			_strcat(error_msg, buf);
+			_strcat(error_msg, ": ");
+			_strcat(error_msg, args[0]);
+			_strcat(error_msg, ": Illegal number: ");
+			_strcat(error_msg, args[1]);
+			_strcat(error_msg, "\n");
+			write(STDOUT_FILENO, error_msg, len);
+			free(error_msg);
+		}
+	}
+	else
+	{
+		exit(0);
+	}
 }
 
 
 /**
  * shell_env - prints environment
- * Return: void
+ * @args: array of str of shell arguments
  */
-
 void shell_env(char **args)
 {
 	int i;
 
 	(void) args;
-
 	for (i = 0; environ[i]; i++)
 	{
 		write(STDOUT_FILENO, environ[i], _strlen(environ[i]));
@@ -30,17 +58,15 @@ void shell_env(char **args)
 
 /**
  * shell_cd - changes directory to arg
- * @ard: the directory to change to or nothing
+ * @arg: the directory to change to or nothing
  */
-
 void shell_cd(char **arg)
 {
-	int i = 0;
-	char *homeval = NULL, *home = NULL;
+	char *homeval = NULL;
 
 	if (arg[1] == NULL)
 		homeval = _getenv("HOME");
 	else
-		homeval = ar[1]; 
+		homeval = arg[1];
 	chdir(homeval);
 }

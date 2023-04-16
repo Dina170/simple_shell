@@ -29,6 +29,7 @@ char *find_path(char *command)
 				return (file_path);
 			else
 				i++;
+			free(file_path);
 		}
 
 		return (NULL);

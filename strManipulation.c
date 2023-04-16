@@ -87,3 +87,28 @@ char *_strcat(char *dest, char *src)
 	dest[dlen] = '\0';
 	return (dest);
 }
+
+/**
+ * _strrev - Reverses a string.
+ * @str: The string to be reversed.
+ *
+ * Return: pointer to reversed string
+ */
+char *_strrev(char *str)
+{
+	int i,	j = 0;
+	char temp;
+
+	while (str[j])
+	{
+		j++;
+	}
+
+	for (i = 0; i < j / 2; i++)
+	{
+		temp = str[i];
+		str[i] = str[j - i - 1];
+		str[j - i - 1] = temp;
+	}
+	return (str);
+}
