@@ -9,6 +9,10 @@
 void exec(char **argv, char *program_name, char **env)
 {
 	pid_t pid;
+	char *command = NULL, *actual_command = NULL;
+
+	command = argv[0];
+	actual_command = find_path(command);
 
 	pid = fork();
 	if (pid == -1)
@@ -18,7 +22,7 @@ void exec(char **argv, char *program_name, char **env)
 	}
 	else if (pid == 0)
 	{
-		if (execve(argv[0], argv, env) == -1)
+		if (execve(actual_command, argv, env) == -1)
 		{
 			perror(program_name);
 			_exit(1);
