@@ -30,17 +30,10 @@ int wordsCounter(char *str, char *delim)
 {
 	int words = 0, i = 0;
 
-	while (delim[i])
-	{
-		if (delim[i] == *str)
-		{
-			break;
-		}
-		i++;
-	}
-	if (!delim[i])
+	if (!isdelim(str[0], delim))
 		words++;
 	str++;
+
 	for (i = 1; str[i]; i++)
 	{
 		if (isdelim(str[i - 1], delim) && !isdelim(str[i], delim))

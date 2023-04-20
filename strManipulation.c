@@ -29,9 +29,9 @@ char *_strcpy(char *dest, char *src)
   */
 int _strlen(char *s)
 {
-	int i;
+	int i = 0;
 
-	for (i = 0; *s != '\0'; i++)
+	for (; s && *s != '\0'; i++)
 	{
 		s++;
 	}

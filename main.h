@@ -10,10 +10,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <linux/limits.h>
 
 extern char **environ;
-extern char *program_name;
-extern unsigned long in_count;
 
 /**
   * struct builtin_command - Struct
@@ -24,11 +23,11 @@ extern unsigned long in_count;
 typedef struct builtin_command
 {
 	char *command;
-	void (*f)(char **);
+	void (*f)(char **, unsigned long);
 } com_t;
 
 ssize_t getline(char **, size_t *, FILE *);
-void exec(char **, char **);
+void exec(char **, unsigned long, char **);
 char *_strcpy(char *, char *);
 char **_strtok(char *, char *);
 char *_getenv(char *);
@@ -39,8 +38,11 @@ char *_strcat(char *, char *);
 char *_strrev(char *);
 int _atoi(char *, char *);
 char *my_itoa(long int, char *, int);
-void shell_exit(char **);
-void shell_env(char **);
-void shell_cd(char **);
+void shell_exit(char **, unsigned long);
+void shell_env(char **, unsigned long);
+void shell_cd(char **, unsigned long);
+void _setenv(char **, unsigned long);
+void _unsetenv(char **, unsigned long);
+void errorHandler(char, unsigned int, char *);
 
 #endif /* ifndef _MAIN_H_ */

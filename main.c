@@ -1,8 +1,5 @@
 #include "main.h"
 
-char *program_name;
-unsigned long in_count = 0;
-
 /**
   * main - launch the shell
   * @argc: number of arguments
@@ -13,13 +10,15 @@ unsigned long in_count = 0;
   */
 int main(int argc, char *argv[], char *env[])
 {
-	size_t n = 0;
+	size_t n = 0, i;
 	char *lineptr = NULL;
 	ssize_t reads;
 	char  *prompt = "($) ", *delim = " \n";
 	char **sargv;
+	unsigned long in_count = 0;
 
-	program_name = argv[0];
+	(void) argv;
+
 	while (1 && argc == 1)
 	{
 		if (isatty(STDIN_FILENO))
@@ -34,7 +33,7 @@ int main(int argc, char *argv[], char *env[])
 		}
 		sargv = _strtok(lineptr, delim);
 		if (sargv)
-			exec(sargv, env);
+			exec(sargv, in_count, env);
 	}
 	free(sargv);
 	free(lineptr);
