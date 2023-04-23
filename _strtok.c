@@ -7,7 +7,7 @@
   * @c: char to be checked
   * @delim: str of delimiters
   *
-  * Return: 1 if it is delimiter, 0 otherwise
+  * Return: 1 if it is delimiter, 2 if the delim is ';', 0 otherwise
   */
 char isdelim(char c, char *delim)
 {
@@ -16,6 +16,8 @@ char isdelim(char c, char *delim)
 	for (i = 0; delim[i]; i++)
 		if (delim[i] == c)
 			return (1);
+		else if (';' == c)
+			return (2);
 	return (0);
 }
 
@@ -32,11 +34,13 @@ int wordsCounter(char *str, char *delim)
 
 	if (!isdelim(str[0], delim))
 		words++;
-	str++;
-
+	if (isdelim(str[0], delim) == 2)
+		words++;
 	for (i = 1; str[i]; i++)
 	{
 		if (isdelim(str[i - 1], delim) && !isdelim(str[i], delim))
+			words++;
+		if (isdelim(str[i - 1], delim) != 2 && isdelim(str[i], delim) == 2)
 			words++;
 	}
 	return (words);
@@ -64,7 +68,7 @@ void free_array(char **array, int size)
 char **_strtok(char *str, char *delim)
 {
 	char *strcpy = str, **wordsArray;
-	int words = 1, len, wordIndex = 0, i;
+	int words = 1, len, wordIndex = 0;
 
 	if (str == (void *)'\0' || *str == '\0')
 		return ((void *)'\0');
@@ -78,10 +82,14 @@ char **_strtok(char *str, char *delim)
 		while (*strcpy != '\0')
 		{
 			len = 0;
-			if (!isdelim(*strcpy, delim))
-			{
-				while (!isdelim(*(strcpy + len), delim) && strcpy[len] != '\0')
+			if (isdelim(*strcpy, delim) == 0)
+				while (isdelim(*(strcpy + len), delim) == 0 && strcpy[len] != '\0')
 					len++;
+			else if (isdelim(*strcpy, delim) == 2)
+				while (isdelim(*(strcpy + len), delim) == 2)
+					len++;
+			if (len)
+			{
 				wordsArray[wordIndex] = (char *)malloc
 					((len + 1) * sizeof(char));
 				if (wordsArray[wordIndex] == (void *)'\0')
@@ -89,14 +97,9 @@ char **_strtok(char *str, char *delim)
 					free_array(wordsArray, wordIndex);
 					return ((void *)'\0');
 				}
-				for (i = 0; i < len; i++)
-				{
-					wordsArray[wordIndex][i] = *strcpy;
-					if (i < len - 1)
-						strcpy++;
-				}
-				wordsArray[wordIndex][len] = '\0';
-				wordIndex++;
+				_strncpy(wordsArray[wordIndex], strcpy, len);
+				strcpy += len - 1;
+				wordsArray[wordIndex][len] = '\0', wordIndex++;
 			}
 			strcpy++;
 		}

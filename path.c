@@ -10,7 +10,7 @@
 char *find_path(char *command)
 {
 	char *path_var, **all_paths, *file_path;
-	int command_len, dir_len, i;
+	int command_len, dir_len, i = 0;
 	struct stat st;
 
 	if (stat(command, &st) == 0)

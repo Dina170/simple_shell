@@ -44,7 +44,6 @@ void exec(char **argv, unsigned long in_count, char **env)
 
 	if (!builtin_exec(argv, in_count))
 		return;
-
 	command = argv[0];
 	actual_command = find_path(command);
 	if (actual_command)
@@ -53,24 +52,13 @@ void exec(char **argv, unsigned long in_count, char **env)
 		actual_command = command;
 	if (pid == -1)
 	{
-		perror("error fork");
 		exit(1);
 	}
 	else if (pid == 0)
 	{
 		if (execve(actual_command, argv, env) == -1)
 		{
-			char buf[100];
-			size_t len = 16 + _strlen(_getenv("_"))
-				+ _strlen(my_itoa(in_count, buf, 10))
-				+ _strlen(argv[0]);
-			char *error_msg = malloc(len);
-
-			_strcpy(error_msg, _getenv("_"));
-			_strcat(error_msg, ": "), _strcat(error_msg, buf);
-			_strcat(error_msg, ": "), _strcat(error_msg, argv[0]);
-			_strcat(error_msg, ": not found\n");
-			write(STDOUT_FILENO, error_msg, len), free(error_msg);
+			errorHandler(8, in_count, argv[0]);
 		}
 	}
 	else

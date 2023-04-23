@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <linux/limits.h>
+#include <fcntl.h>
 
 extern char **environ;
 
@@ -29,6 +30,7 @@ typedef struct builtin_command
 ssize_t getline(char **, size_t *, FILE *);
 void exec(char **, unsigned long, char **);
 char *_strcpy(char *, char *);
+char *_strncpy(char *, char *, int);
 char **_strtok(char *, char *);
 char *_getenv(char *);
 int _strlen(char *);
@@ -44,5 +46,7 @@ void shell_cd(char **, unsigned long);
 void _setenv(char **, unsigned long);
 void _unsetenv(char **, unsigned long);
 void errorHandler(char, unsigned int, char *);
+ssize_t _getline(char **, size_t *, FILE *);
+ssize_t concat_sep(char **);
 
 #endif /* ifndef _MAIN_H_ */

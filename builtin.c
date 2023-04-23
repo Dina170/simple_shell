@@ -112,24 +112,28 @@ void _unsetenv(char **args, unsigned long in_count)
 		}
 		i++;
 	}
+	if (!_getenv(args[1]))
+		return;
 	var_equal = malloc(_strlen(args[1]) + 1);
 	if (!var_equal)
 		return;
 	_strcpy(var_equal, args[1]);
 	_strcat(var_equal, "=");
 	len = _strlen(args[1]) + 1;
-	if (!_getenv(args[1]))
-		return;
 	for (size = 0; environ[size]; size++)
 		;
 	for (index = 0, index2 = 0; environ[index]; index++)
 	{
 		if (_strncmp(var_equal, environ[index], len) == 0)
+		{
+			free(environ[index]);
 			continue;
+		}
 		environ[index2] = environ[index];
 		index2++;
 	}
 	environ[size - 1] = NULL;
+	free(var_equal);
 }
 
 /**
