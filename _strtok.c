@@ -7,7 +7,8 @@
   * @c: char to be checked
   * @delim: str of delimiters
   *
-  * Return: 1 if it is delimiter, 2 if the delim is ';', 0 otherwise
+  * Return: 1 if it is delimiter, 2 if the delim is ';',
+  * 3 if delim is '&', 4 if delim is '|', 0 otherwise
   */
 char isdelim(char c, char *delim)
 {
@@ -18,6 +19,10 @@ char isdelim(char c, char *delim)
 			return (1);
 		else if (';' == c)
 			return (2);
+		else if ('&' == c)
+			return (3);
+		else if ('|' == c)
+			return (4);
 	return (0);
 }
 
@@ -32,15 +37,17 @@ int wordsCounter(char *str, char *delim)
 {
 	int words = 0, i = 0;
 
-	if (!isdelim(str[0], delim))
-		words++;
-	if (isdelim(str[0], delim) == 2)
+	if (isdelim(str[0], delim) != 1)
 		words++;
 	for (i = 1; str[i]; i++)
 	{
 		if (isdelim(str[i - 1], delim) && !isdelim(str[i], delim))
 			words++;
-		if (isdelim(str[i - 1], delim) != 2 && isdelim(str[i], delim) == 2)
+		else if (isdelim(str[i - 1], delim) != 2 && isdelim(str[i], delim) == 2)
+			words++;
+		else if (isdelim(str[i - 1], delim) != 3 && isdelim(str[i], delim) == 3)
+			words++;
+		else if (isdelim(str[i - 1], delim) != 4 && isdelim(str[i], delim) == 4)
 			words++;
 	}
 	return (words);
@@ -56,6 +63,32 @@ void free_array(char **array, int size)
 	while (size--)
 		free(array[size]);
 	free(array);
+}
+
+/**
+  * toklen - calculate token length
+  * @strcpy: pointer to the start of the token
+  * @delim: string delimter
+  *
+  * Return: the token length
+  */
+int toklen(char *strcpy, char *delim)
+{
+	int len = 0;
+
+	if (isdelim(*strcpy, delim) == 0)
+		while (isdelim(*(strcpy + len), delim) == 0 && strcpy[len] != '\0')
+			len++;
+	else if (isdelim(*strcpy, delim) == 2)
+		while (isdelim(*(strcpy + len), delim) == 2)
+			len++;
+	else if (isdelim(*strcpy, delim) == 3)
+		while (isdelim(*(strcpy + len), delim) == 3)
+			len++;
+	else if (isdelim(*strcpy, delim) == 4)
+		while (isdelim(*(strcpy + len), delim) == 4)
+			len++;
+	return (len);
 }
 
 /**
@@ -81,13 +114,7 @@ char **_strtok(char *str, char *delim)
 		strcpy = str;
 		while (*strcpy != '\0')
 		{
-			len = 0;
-			if (isdelim(*strcpy, delim) == 0)
-				while (isdelim(*(strcpy + len), delim) == 0 && strcpy[len] != '\0')
-					len++;
-			else if (isdelim(*strcpy, delim) == 2)
-				while (isdelim(*(strcpy + len), delim) == 2)
-					len++;
+			len = toklen(strcpy, delim);
 			if (len)
 			{
 				wordsArray[wordIndex] = (char *)malloc

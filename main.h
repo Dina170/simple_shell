@@ -24,11 +24,11 @@ extern char **environ;
 typedef struct builtin_command
 {
 	char *command;
-	void (*f)(char **, unsigned long);
+	size_t (*f)(char **, unsigned long);
 } com_t;
 
 ssize_t getline(char **, size_t *, FILE *);
-void exec(char **, unsigned long, char **);
+size_t exec(char **, unsigned long, char **);
 char *_strcpy(char *, char *);
 char *_strncpy(char *, char *, int);
 char **_strtok(char *, char *);
@@ -40,11 +40,11 @@ char *_strcat(char *, char *);
 char *_strrev(char *);
 int _atoi(char *, char *);
 char *my_itoa(long int, char *, int);
-void shell_exit(char **, unsigned long);
-void shell_env(char **, unsigned long);
-void shell_cd(char **, unsigned long);
-void _setenv(char **, unsigned long);
-void _unsetenv(char **, unsigned long);
+size_t shell_exit(char **, unsigned long);
+size_t shell_env(char **, unsigned long);
+size_t shell_cd(char **, unsigned long);
+size_t _setenv(char **, unsigned long);
+size_t _unsetenv(char **, unsigned long);
 void errorHandler(char, unsigned int, char *);
 ssize_t _getline(char **, size_t *, FILE *);
 ssize_t concat_sep(char **);

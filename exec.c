@@ -24,8 +24,7 @@ char builtin_exec(char **argv, unsigned long in_count)
 	{
 		if (!_strncmp(coms[i].command, argv[0], 8))
 		{
-			coms[i].f(argv, in_count);
-			return (0);
+			return (coms[i].f(argv, in_count));
 		}
 	}
 	return (-1);
@@ -36,14 +35,18 @@ char builtin_exec(char **argv, unsigned long in_count)
   * @argv: array of strings of shell arguments
   * @in_count: shell input counter
   * @env: array of str
+  *
+  * Return: exit status
   */
-void exec(char **argv, unsigned long in_count, char **env)
+size_t exec(char **argv, unsigned long in_count, char **env)
 {
-	pid_t pid = 0;
-	char *command = NULL, *actual_command = NULL;
+	pid_t pid = 0, w;
+	char *command = NULL, *actual_command = NULL, builtin_status;
+	int status, exit_status;
 
-	if (!builtin_exec(argv, in_count))
-		return;
+	builtin_status = builtin_exec(argv, in_count);
+	if (builtin_status != -1)
+		return (builtin_status);
 	command = argv[0];
 	actual_command = find_path(command);
 	if (actual_command)
@@ -58,11 +61,19 @@ void exec(char **argv, unsigned long in_count, char **env)
 	{
 		if (execve(actual_command, argv, env) == -1)
 		{
-			errorHandler(8, in_count, argv[0]);
+			errorHandler(20, in_count, argv[0]);
+			exit_status = 127;
 		}
 	}
 	else
 	{
-		wait(NULL);
+		do {
+			w = wait(&status);
+			if (w == -1)
+				exit(1);
+			if (WIFEXITED(status))
+				exit_status = WEXITSTATUS(status);
+		} while (!WIFEXITED(status) && !WIFSIGNALED(status));
 	}
+	return (exit_status);
 }
