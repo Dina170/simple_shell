@@ -9,7 +9,7 @@
 
 char *find_path(char *command)
 {
-	char *path_var, **all_paths, *file_path;
+	char *path_var, **all_paths = NULL, *file_path;
 	int command_len, dir_len, i = 0;
 	struct stat st;
 
@@ -33,12 +33,14 @@ char *find_path(char *command)
 			_strcat(file_path, "\0");
 
 			if (stat(file_path, &st) == 0)
+			{
+				free_array(all_paths);
 				return (file_path);
+			}
 			i++;
 			free(file_path);
 		}
-
-		return (NULL);
 	}
+	free_array(all_paths);
 	return (NULL);
 }

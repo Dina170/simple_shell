@@ -12,6 +12,7 @@
 #include <time.h>
 #include <linux/limits.h>
 #include <fcntl.h>
+#include <signal.h>
 
 extern char **environ;
 
@@ -28,13 +29,14 @@ typedef struct builtin_command
 } com_t;
 
 ssize_t getline(char **, size_t *, FILE *);
-size_t exec(char **, unsigned long, char **);
+size_t exec(char **, unsigned long, char **, char **);
 char *_strcpy(char *, char *);
 char *_strncpy(char *, char *, int);
 char **_strtok(char *, char *);
 char *_getenv(char *);
 int _strlen(char *);
 int _strncmp(char *, char *, size_t);
+char *_strdup(char *);
 char *find_path(char *);
 char *_strcat(char *, char *);
 char *_strrev(char *);
@@ -45,8 +47,14 @@ size_t shell_env(char **, unsigned long);
 size_t shell_cd(char **, unsigned long);
 size_t _setenv(char **, unsigned long);
 size_t _unsetenv(char **, unsigned long);
+size_t shell_alias(char **, char **);
 void errorHandler(char, unsigned int, char *);
 ssize_t _getline(char **, size_t *, FILE *);
 ssize_t concat_sep(char **);
+void handle_sigint(int);
+void free_array(char **);
+char setalias(char *, char **, size_t);
+char print_alias(char *, char **);
+int defined_alias(char *, char **, size_t);
 
 #endif /* ifndef _MAIN_H_ */

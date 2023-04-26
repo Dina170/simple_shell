@@ -125,7 +125,7 @@ size_t _unsetenv(char **args, unsigned long in_count)
 	}
 	if (!_getenv(args[1]))
 		return (0);
-	var_equal = malloc(_strlen(args[1]) + 1);
+	var_equal = malloc(_strlen(args[1]) + 2);
 	if (!var_equal)
 		return (2);
 	_strcpy(var_equal, args[1]);

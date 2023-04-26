@@ -4,9 +4,8 @@
   * separatorsCases - detect separator errors
   * @errnum: error case
   * @error_msg: error message
-  * @msg_len: len of message
   */
-void separatorsCases(char errnum, char **error_msg, size_t *msg_len)
+void separatorsCases(char errnum, char **error_msg)
 {
 	switch (errnum)
 	{
@@ -15,7 +14,7 @@ void separatorsCases(char errnum, char **error_msg, size_t *msg_len)
 			;
 			break;
 		case 7:
-			*error_msg = malloc(sizeof(char) * 33);
+			*error_msg = malloc(sizeof(char) * 32);
 			_strcpy(*error_msg, ": Syntax error: \";")
 			;
 			_strcat(*error_msg, ";\" unexpected")
@@ -37,7 +36,7 @@ void separatorsCases(char errnum, char **error_msg, size_t *msg_len)
 void err_helper(char errnum, char **error_msg, size_t *msg_len)
 {
 	if (errnum >= 6 && errnum <= 9)
-		separatorsCases(errnum, error_msg, msg_len);
+		separatorsCases(errnum, error_msg);
 	switch (errnum)
 	{
 		case 0:
@@ -79,7 +78,8 @@ void errorHandler(char errnum, unsigned int in_count, char *farg)
 	err_helper(errnum, &error_msg, &msg_len);
 	len = msg_len + _strlen(_getenv("_"))
 		       + _strlen(my_itoa(in_count, buff, 10))
-		       + _strlen(farg) + 5;
+		       + _strlen(farg) + 4;
+	len += (errnum == 20) ? 2 : 0;
 	shell_err = malloc(len);
 	_strcpy(shell_err, _getenv("_")), _strcat(shell_err, ": ");
 	_strcat(shell_err, buff);

@@ -56,12 +56,13 @@ int wordsCounter(char *str, char *delim)
 /**
   * free_array - free allocated array
   * @array: pointer to pointer of char
-  * @size: size of array
   */
-void free_array(char **array, int size)
+void free_array(char **array)
 {
-	while (size--)
-		free(array[size]);
+	int i = 0;
+
+	while (array && array[i])
+		free(array[i++]);
 	free(array);
 }
 
@@ -121,7 +122,7 @@ char **_strtok(char *str, char *delim)
 					((len + 1) * sizeof(char));
 				if (wordsArray[wordIndex] == (void *)'\0')
 				{
-					free_array(wordsArray, wordIndex);
+					free_array(wordsArray);
 					return ((void *)'\0');
 				}
 				_strncpy(wordsArray[wordIndex], strcpy, len);
