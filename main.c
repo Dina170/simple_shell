@@ -5,18 +5,17 @@
   * @lineptr: pointer to the input string
   * @n: size of input buffer
   * @aliases: array of aliases
-  * @prompt: shell prompt string
   */
-void shell_input(char **lineptr, size_t *n, char **aliases, char *prompt)
+void shell_input(char **lineptr, size_t *n, char **aliases)
 {
 	ssize_t reads = getline(lineptr, n, stdin);
 
 	if (reads == -1)
 	{
+		if (isatty(STDIN_FILENO))
+			write(STDOUT_FILENO, "\n", 1);
 		free(*lineptr);
 		free_array(aliases);
-		if (!isatty(STDIN_FILENO))
-			write(STDOUT_FILENO, prompt, 4);
 		exit(0);
 	}
 	(*lineptr)[reads] = '\0';
@@ -82,7 +81,7 @@ int main(int argc, char *argv[], char *env[])
 {
 	size_t n = 0, exit_status;
 	char *lineptr = NULL, **sargv = NULL;
-	char  *prompt = "($) ", *delim = " \n";
+	char  *prompt = "$ ", *delim = " \n";
 	unsigned long in_count = 0;
 	char **aliases = malloc(sizeof(char *) * 1024);
 
@@ -92,8 +91,8 @@ int main(int argc, char *argv[], char *env[])
 	while (1 && argc == 1)
 	{
 		if (isatty(STDIN_FILENO))
-			write(STDOUT_FILENO, prompt, 4);
-		shell_input(&lineptr, &n, aliases, prompt);
+			write(STDOUT_FILENO, prompt, 2);
+		shell_input(&lineptr, &n, aliases);
 		in_count++;
 		sargv = _strtok(lineptr, delim);
 		m_helper(sargv, &in_count, &exit_status, aliases, env);
