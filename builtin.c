@@ -156,25 +156,33 @@ size_t _unsetenv(char **args, unsigned long in_count)
  */
 size_t shell_cd(char **args, unsigned long in_count)
 {
-	char prev_dir[PATH_MAX], current_dir[PATH_MAX];
+	char current_dir[PATH_MAX], prev_dir[PATH_MAX];
 	char *setenv_args[3];
 
 	if (args[1] == NULL)
+	{
+		getcwd(current_dir, PATH_MAX);
+		setenv_args[0] = "setenv", setenv_args[1] = "OLDPWD";
+		setenv_args[2] = current_dir, _setenv(setenv_args, in_count);
 		chdir(_getenv("HOME"));
+	}
 	else if (_strncmp(args[1], "-", 1) == 0)
 	{
-		if (prev_dir[0] == '\0')
-			chdir(_getenv("HOME"));
-		else
+		if (_getenv("OLDPWD"))
 		{
-			chdir(prev_dir), getcwd(current_dir, PATH_MAX);
+			getcwd(prev_dir, PATH_MAX);
+			chdir(_getenv("OLDPWD")), getcwd(current_dir, PATH_MAX);
 			write(STDOUT_FILENO, current_dir, _strlen(current_dir));
 			write(STDOUT_FILENO, "\n", 1);
+			setenv_args[0] = "setenv", setenv_args[1] = "OLDPWD";
+			setenv_args[2] = prev_dir, _setenv(setenv_args, in_count);
 		}
 	}
 	else
 	{
-		getcwd(prev_dir, PATH_MAX);
+		getcwd(current_dir, PATH_MAX);
+		setenv_args[0] = "setenv", setenv_args[1] = "OLDPWD";
+		setenv_args[2] = current_dir, _setenv(setenv_args, in_count);
 		if (chdir(args[1]) != 0)
 		{
 			errorHandler(1, in_count, args[1]);

@@ -36,19 +36,27 @@ char isdelim(char c, char *delim)
 int wordsCounter(char *str, char *delim)
 {
 	int words = 0, i = 0;
+	char one_arg = -1;
 
 	if (isdelim(str[0], delim) != 1)
 		words++;
+	if (str[0] == '\'')
+		one_arg = 1;
 	for (i = 1; str[i]; i++)
 	{
-		if (isdelim(str[i - 1], delim) && !isdelim(str[i], delim))
-			words++;
-		else if (isdelim(str[i - 1], delim) != 2 && isdelim(str[i], delim) == 2)
-			words++;
-		else if (isdelim(str[i - 1], delim) != 3 && isdelim(str[i], delim) == 3)
-			words++;
-		else if (isdelim(str[i - 1], delim) != 4 && isdelim(str[i], delim) == 4)
-			words++;
+		if (one_arg == -1)
+		{
+			if (isdelim(str[i - 1], delim) && !isdelim(str[i], delim))
+				words++;
+			else if (isdelim(str[i - 1], delim) != 2 && isdelim(str[i], delim) == 2)
+				words++;
+			else if (isdelim(str[i - 1], delim) != 3 && isdelim(str[i], delim) == 3)
+				words++;
+			else if (isdelim(str[i - 1], delim) != 4 && isdelim(str[i], delim) == 4)
+				words++;
+		}
+		if (str[i] == '\'')
+			one_arg *= -1;
 	}
 	return (words);
 }
@@ -78,8 +86,28 @@ int toklen(char *strcpy, char *delim)
 	int len = 0;
 
 	if (isdelim(*strcpy, delim) == 0)
-		while (isdelim(*(strcpy + len), delim) == 0 && strcpy[len] != '\0')
+	{
+		if (*strcpy == '\'')
+		{
+			len = 1;
+			while (strcpy[len] != '\'')
+				len++;
 			len++;
+		}
+		else
+			while (isdelim(*(strcpy + len), delim) == 0 && strcpy[len] != '\0')
+			{
+				if (strcpy[len] == '\'')
+				{
+					len++;
+					while (strcpy[len] != '\'')
+						len++;
+					len++;
+				}
+				else
+					len++;
+			}
+	}
 	else if (isdelim(*strcpy, delim) == 2)
 		while (isdelim(*(strcpy + len), delim) == 2)
 			len++;

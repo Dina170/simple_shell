@@ -56,5 +56,7 @@ void free_array(char **);
 char setalias(char *, char **, size_t);
 char print_alias(char *, char **);
 int defined_alias(char *, char **, size_t);
+char **getalias(char **, size_t, char **);
+void print_aliases(char **);
 
 #endif /* ifndef _MAIN_H_ */
