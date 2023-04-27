@@ -14,7 +14,7 @@ char *find_path(char *command)
 	struct stat st;
 
 	if (stat(command, &st) == 0)
-		return (command);
+		return (_strdup(command));
 
 	path_var = _getenv("PATH");
 

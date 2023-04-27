@@ -32,10 +32,10 @@ size_t shell_input(char **lineptr, size_t *n)
  * Return: command
  */
 char **handle_command(char **sargv, size_t sargc, size_t command_argc,
-		char **aliases, size_t ext_stat)
+		char **aliases, size_t *ext_stat)
 {
 	size_t i;
-	char **command = command = malloc(sizeof(char *) * (command_argc + 1));
+	char **command = malloc(sizeof(char *) * (command_argc + 1));
 
 	if (!command)
 		return (NULL);
@@ -45,7 +45,7 @@ char **handle_command(char **sargv, size_t sargc, size_t command_argc,
 	command = getalias(command, command_argc, aliases);
 	if (!command)
 		return (NULL);
-	command = handle_dollarsign(command, command_argc, extStat);
+	command = handle_dollarsign(command, command_argc, ext_stat);
 	if (!command)
 		return (NULL);
 	return (command);
@@ -75,6 +75,7 @@ char m_helper(char **sargv, unsigned long *inCnt, size_t *extStat,
 		{
 			for (command_argc = 0; sargv[sargc] && sargv[sargc][0] != ';'
 					&& sargv[sargc][0] != '&' && sargv[sargc][0] != '|'; sargc++)
+				command_argc++;
 			if (command_argc)
 			{
 				command = handle_command(sargv, sargc, command_argc, aliases, extStat);

@@ -61,7 +61,7 @@ size_t exec(char **argv, unsigned long in_count, char **aliases,
 	if (actual_command)
 		pid = fork();
 	else
-		actual_command = command;
+		actual_command = _strdup(command);
 	if (pid == -1)
 	{
 		exit(1);
@@ -84,5 +84,6 @@ size_t exec(char **argv, unsigned long in_count, char **aliases,
 				exit_status = WEXITSTATUS(status);
 		} while (!WIFEXITED(status) && !WIFSIGNALED(status));
 	}
+	free(actual_command);
 	return (exit_status);
 }
