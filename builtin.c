@@ -4,10 +4,11 @@
  * shell_exit - exits the shell
  * @args: array of str of shell arguments
  * @in_count: shell input counter
+ * @prog_name: shell name
  *
  * Return: exit status
  */
-size_t shell_exit(char **args, unsigned long in_count)
+size_t shell_exit(char **args, unsigned long in_count, char *prog_name)
 {
 	if (args[1])
 	{
@@ -15,15 +16,17 @@ size_t shell_exit(char **args, unsigned long in_count)
 		int status = _atoi(args[1], &arg_status);
 
 		if (!arg_status && status >= 0)
-			exit(status);
+		{
+			return (256 + (unsigned char)status);
+		}
 		else
 		{
-			errorHandler(0, in_count, args[1]);
+			errorHandler(0, in_count, args[1], prog_name);
 		}
 	}
 	else
 	{
-		exit(0);
+		return (1000);
 	}
 	return (2);
 }
@@ -33,14 +36,15 @@ size_t shell_exit(char **args, unsigned long in_count)
  * shell_env - prints environment
  * @args: array of str of shell arguments
  * @in_count: shell input counter
+ * @prog_name: shell name
  *
  * Return: exit status
  */
-size_t shell_env(char **args, unsigned long in_count)
+size_t shell_env(char **args, unsigned long in_count, char *prog_name)
 {
 	int i;
 
-	(void) args, (void) in_count;
+	(void) args, (void) in_count, (void) prog_name;
 
 	for (i = 0; environ[i]; i++)
 	{
@@ -53,10 +57,11 @@ size_t shell_env(char **args, unsigned long in_count)
  * _setenv - updates or adds an environmental variable
  * @args: array of arguments passed to the shell
  * @in_count: shell input counter
+ * @prog_name: shell name
  *
  * Return: exit status
  */
-size_t _setenv(char **args, unsigned long in_count)
+size_t _setenv(char **args, unsigned long in_count, char *prog_name)
 {
 	size_t size, i = 0;
 	int index, len;
@@ -64,14 +69,14 @@ size_t _setenv(char **args, unsigned long in_count)
 
 	if (!args[1] || !args[2])
 	{
-		errorHandler(2, in_count, NULL);
+		errorHandler(2, in_count, NULL, prog_name);
 		return (2);
 	}
 	while (args[1][i])
 	{
 		if (args[1][i] == '=')
 		{
-			errorHandler(3, in_count, args[1]);
+			errorHandler(3, in_count, args[1], prog_name);
 			return (2);
 		}
 		i++;
@@ -100,10 +105,11 @@ size_t _setenv(char **args, unsigned long in_count)
  * _unsetenv - deletes an environmental variable
  * @args: array of arguments passed to the shell
  * @in_count: shell input counter
+ * @prog_name: shell name
  *
  * Return: exit status
  */
-size_t _unsetenv(char **args, unsigned long in_count)
+size_t _unsetenv(char **args, unsigned long in_count, char *prog_name)
 {
 	char *var_equal;
 	size_t size, i = 0;
@@ -111,14 +117,14 @@ size_t _unsetenv(char **args, unsigned long in_count)
 
 	if (!args[1])
 	{
-		errorHandler(4, in_count, NULL);
+		errorHandler(4, in_count, NULL, prog_name);
 		return (2);
 	}
 	while (args[1][i])
 	{
 		if (args[1][i] == '=')
 		{
-			errorHandler(5, in_count, args[1]);
+			errorHandler(5, in_count, args[1], prog_name);
 			return (2);
 		}
 		i++;
@@ -137,7 +143,6 @@ size_t _unsetenv(char **args, unsigned long in_count)
 	{
 		if (_strncmp(var_equal, environ[index], len) == 0)
 		{
-			free(environ[index]);
 			continue;
 		}
 		environ[index2] = environ[index];
@@ -151,22 +156,23 @@ size_t _unsetenv(char **args, unsigned long in_count)
  * shell_cd - changes directory to arg
  * @args: the directory to change to or nothing
  * @in_count: shell input counter
+ * @prog_name: shell name
  *
  * Return: exit status
  */
-size_t shell_cd(char **args, unsigned long in_count)
+size_t shell_cd(char **args, unsigned long in_count, char *prog_name)
 {
 	char current_dir[PATH_MAX], prev_dir[PATH_MAX];
 	char *setenv_args[3];
 
-	if (args[1] == NULL)
+	if (args[1] == NULL && _getenv("HOME"))
 	{
 		getcwd(current_dir, PATH_MAX);
 		setenv_args[0] = "setenv", setenv_args[1] = "OLDPWD";
-		setenv_args[2] = current_dir, _setenv(setenv_args, in_count);
+		setenv_args[2] = current_dir, _setenv(setenv_args, in_count, prog_name);
 		chdir(_getenv("HOME"));
 	}
-	else if (_strncmp(args[1], "-", 1) == 0)
+	else if (args[1] && _strncmp(args[1], "-", 1) == 0)
 	{
 		if (_getenv("OLDPWD"))
 		{
@@ -175,22 +181,22 @@ size_t shell_cd(char **args, unsigned long in_count)
 			write(STDOUT_FILENO, current_dir, _strlen(current_dir));
 			write(STDOUT_FILENO, "\n", 1);
 			setenv_args[0] = "setenv", setenv_args[1] = "OLDPWD";
-			setenv_args[2] = prev_dir, _setenv(setenv_args, in_count);
+			setenv_args[2] = prev_dir, _setenv(setenv_args, in_count, prog_name);
 		}
 	}
-	else
+	else if (args[1])
 	{
 		getcwd(current_dir, PATH_MAX);
 		setenv_args[0] = "setenv", setenv_args[1] = "OLDPWD";
-		setenv_args[2] = current_dir, _setenv(setenv_args, in_count);
+		setenv_args[2] = current_dir, _setenv(setenv_args, in_count, prog_name);
 		if (chdir(args[1]) != 0)
 		{
-			errorHandler(1, in_count, args[1]);
+			errorHandler(1, in_count, args[1], prog_name);
 			return (2);
 		}
 	}
 	getcwd(current_dir, PATH_MAX);
 	setenv_args[0] = "setenv", setenv_args[1] = "PWD";
-	setenv_args[2] = current_dir, _setenv(setenv_args, in_count);
+	setenv_args[2] = current_dir, _setenv(setenv_args, in_count, prog_name);
 	return (0);
 }

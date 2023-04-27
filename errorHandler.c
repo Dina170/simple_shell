@@ -68,20 +68,22 @@ void err_helper(char errnum, char **error_msg, size_t *msg_len)
  * @errnum: error case
  * @in_count: shell input counter
  * @farg: command first argument
+ * @prog_name: shell name
  */
 
-void errorHandler(char errnum, unsigned int in_count, char *farg)
+void errorHandler(char errnum, unsigned int in_count,
+		char *farg, char *prog_name)
 {
 	char *error_msg, *shell_err, buff[100];
 	size_t msg_len = 0, len = 0;
 
 	err_helper(errnum, &error_msg, &msg_len);
-	len = msg_len + _strlen(_getenv("_"))
+	len = msg_len + _strlen(prog_name)
 		       + _strlen(my_itoa(in_count, buff, 10))
-		       + _strlen(farg) + 4;
+		       + _strlen(farg) + 3;
 	len += (errnum == 20) ? 2 : 0;
-	shell_err = malloc(len);
-	_strcpy(shell_err, _getenv("_")), _strcat(shell_err, ": ");
+	shell_err = malloc(len + 1);
+	_strcpy(shell_err, prog_name), _strcat(shell_err, ": ");
 	_strcat(shell_err, buff);
 	if (errnum == 20)
 	{

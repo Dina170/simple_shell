@@ -5,10 +5,12 @@
   * @argv: array of str of shell commands
   * @in_count: shell input counter
   * @aliases: array of aliases
+  * @prog_name: shell name
   *
-  * Return: 0 if command is found, -1 otherwise
+  * Return: exit status if command is found and executed, -1 otherwise
   */
-char builtin_exec(char **argv, unsigned long in_count, char **aliases)
+ssize_t builtin_exec(char **argv, unsigned long in_count,
+		char **aliases, char *prog_name)
 {
 	com_t coms[] = {
 		{"exit", shell_exit},
@@ -27,7 +29,7 @@ char builtin_exec(char **argv, unsigned long in_count, char **aliases)
 	{
 		if (!_strncmp(coms[i].command, argv[0], 8))
 		{
-			return (coms[i].f(argv, in_count));
+			return (coms[i].f(argv, in_count, prog_name));
 		}
 	}
 	return (-1);
@@ -39,16 +41,19 @@ char builtin_exec(char **argv, unsigned long in_count, char **aliases)
   * @in_count: shell input counter
   * @aliases: array of aliases
   * @env: array of str
+  * @prog_name: shell_name
   *
   * Return: exit status
   */
-size_t exec(char **argv, unsigned long in_count, char **aliases, char **env)
+size_t exec(char **argv, unsigned long in_count, char **aliases,
+		char **env, char *prog_name)
 {
 	pid_t pid = 0, w;
-	char *command = NULL, *actual_command = NULL, builtin_status;
+	char *command = NULL, *actual_command = NULL;
+	ssize_t builtin_status;
 	int status, exit_status;
 
-	builtin_status = builtin_exec(argv, in_count, aliases);
+	builtin_status = builtin_exec(argv, in_count, aliases, prog_name);
 	if (builtin_status != -1)
 		return (builtin_status);
 	command = argv[0];
@@ -65,7 +70,7 @@ size_t exec(char **argv, unsigned long in_count, char **aliases, char **env)
 	{
 		if (execve(actual_command, argv, env) == -1)
 		{
-			errorHandler(20, in_count, argv[0]);
+			errorHandler(20, in_count, argv[0], prog_name);
 			exit_status = 127;
 		}
 	}

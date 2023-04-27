@@ -18,7 +18,7 @@ char *find_path(char *command)
 
 	path_var = _getenv("PATH");
 
-	if (path_var)
+	if (path_var && path_var[0] != '\0')
 	{
 		all_paths = _strtok(path_var, ":");
 		command_len = _strlen(command);

@@ -25,11 +25,11 @@ extern char **environ;
 typedef struct builtin_command
 {
 	char *command;
-	size_t (*f)(char **, unsigned long);
+	size_t (*f)(char **, unsigned long, char *);
 } com_t;
 
 ssize_t getline(char **, size_t *, FILE *);
-size_t exec(char **, unsigned long, char **, char **);
+size_t exec(char **, unsigned long, char **, char **, char *);
 char *_strcpy(char *, char *);
 char *_strncpy(char *, char *, int);
 char **_strtok(char *, char *);
@@ -42,13 +42,13 @@ char *_strcat(char *, char *);
 char *_strrev(char *);
 int _atoi(char *, char *);
 char *my_itoa(long int, char *, int);
-size_t shell_exit(char **, unsigned long);
-size_t shell_env(char **, unsigned long);
-size_t shell_cd(char **, unsigned long);
-size_t _setenv(char **, unsigned long);
-size_t _unsetenv(char **, unsigned long);
+size_t shell_exit(char **, unsigned long, char *);
+size_t shell_env(char **, unsigned long, char *);
+size_t shell_cd(char **, unsigned long, char *);
+size_t _setenv(char **, unsigned long, char *);
+size_t _unsetenv(char **, unsigned long, char *);
 size_t shell_alias(char **, char **);
-void errorHandler(char, unsigned int, char *);
+void errorHandler(char, unsigned int, char *, char *);
 ssize_t _getline(char **, size_t *, FILE *);
 ssize_t concat_sep(char **);
 void handle_sigint(int);
@@ -58,5 +58,6 @@ char print_alias(char *, char **);
 int defined_alias(char *, char **, size_t);
 char **getalias(char **, size_t, char **);
 void print_aliases(char **);
+char **handle_dollarsign(char **, size_t, size_t *);
 
 #endif /* ifndef _MAIN_H_ */

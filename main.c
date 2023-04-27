@@ -4,9 +4,10 @@
   * shell_input - gets shell input
   * @lineptr: pointer to the input string
   * @n: size of input buffer
-  * @aliases: array of aliases
+  *
+  * Return: 1 if EOF, 0 otherwise
   */
-void shell_input(char **lineptr, size_t *n, char **aliases)
+size_t shell_input(char **lineptr, size_t *n)
 {
 	ssize_t reads = getline(lineptr, n, stdin);
 
@@ -14,11 +15,40 @@ void shell_input(char **lineptr, size_t *n, char **aliases)
 	{
 		if (isatty(STDIN_FILENO))
 			write(STDOUT_FILENO, "\n", 1);
-		free(*lineptr);
-		free_array(aliases);
-		exit(0);
+		return (1);
 	}
 	(*lineptr)[reads] = '\0';
+	return (0);
+}
+
+/**
+ * handle_command - handle command for execution
+ * @sargv: array of shell arguments
+ * @sargc: index of delim after command
+ * @command_argc: number of arguments of each command
+ * @aliases: array of aliases
+ * @ext_stat: exit status
+ *
+ * Return: command
+ */
+char **handle_command(char **sargv, size_t sargc, size_t command_argc,
+		char **aliases, size_t ext_stat)
+{
+	size_t i;
+	char **command = command = malloc(sizeof(char *) * (command_argc + 1));
+
+	if (!command)
+		return (NULL);
+	for (i = 0; i < command_argc; i++)
+		command[i] = _strdup(sargv[sargc - (command_argc) + i]);
+	command[i] = NULL;
+	command = getalias(command, command_argc, aliases);
+	if (!command)
+		return (NULL);
+	command = handle_dollarsign(command, command_argc, extStat);
+	if (!command)
+		return (NULL);
+	return (command);
 }
 
 /**
@@ -28,39 +58,35 @@ void shell_input(char **lineptr, size_t *n, char **aliases)
   * @extStat: exit state
   * @aliases: array of aliases
   * @env: array of str
+  * @prog_name: shell name
   *
   * Return: 0 if success, 1 if it fails
   */
 char m_helper(char **sargv, unsigned long *inCnt, size_t *extStat,
-		char **aliases,  char **env)
+		char **aliases,  char **env, char *prog_name)
 {
-	size_t sargc = 0, command_argc, i;
+	size_t sargc = 0, command_argc, exec_return;
 	char **command, last_state = 1, execute_case = 1, is_and = 1;
 
 	if (concat_sep(sargv) != -1)
-		errorHandler(6 + concat_sep(sargv), *inCnt, NULL), (*inCnt)--;
+		errorHandler(6 + concat_sep(sargv), *inCnt, NULL, prog_name), (*inCnt)--;
 	else
 		while (sargv && sargv[sargc])
 		{
 			for (command_argc = 0; sargv[sargc] && sargv[sargc][0] != ';'
 					&& sargv[sargc][0] != '&' && sargv[sargc][0] != '|'; sargc++)
-				command_argc++;
 			if (command_argc)
 			{
-				command = malloc(sizeof(char *) * (command_argc + 1));
-				if (!command)
-				{
-					return (1);
-				}
-				for (i = 0; i < command_argc; i++)
-					command[i] = sargv[sargc - (command_argc) + i];
-				command[i] = NULL;
-				command = getalias(command, command_argc, aliases);
+				command = handle_command(sargv, sargc, command_argc, aliases, extStat);
 				if (!command)
 					return (1);
 				if (execute_case)
 				{
-					*extStat = exec(command, *inCnt, aliases, env);
+					exec_return = exec(command, *inCnt, aliases, env, prog_name);
+					if (exec_return != 1000)
+						*extStat = exec_return;
+					else
+						return (1);
 					last_state = (!*extStat) ? 1 : 0;
 				}
 				else
@@ -69,6 +95,7 @@ char m_helper(char **sargv, unsigned long *inCnt, size_t *extStat,
 					is_and = 1, execute_case = last_state;
 				else if (sargv[sargc] && sargv[sargc][0] == '|')
 					is_and = 0, execute_case = (last_state) ? 0 : 1;
+				free_array(command);
 			}
 			if (sargv[sargc])
 				sargc++;
@@ -86,7 +113,7 @@ char m_helper(char **sargv, unsigned long *inCnt, size_t *extStat,
   */
 int main(int argc, char *argv[], char *env[])
 {
-	size_t n = 0, exit_status;
+	size_t n = 0, exit_status = 0, eof = 0;
 	char *lineptr = NULL, **sargv = NULL;
 	char  *prompt = "$ ", *delim = " \n";
 	unsigned long in_count = 0;
@@ -99,12 +126,28 @@ int main(int argc, char *argv[], char *env[])
 	{
 		if (isatty(STDIN_FILENO))
 			write(STDOUT_FILENO, prompt, 2);
-		shell_input(&lineptr, &n, aliases);
+		eof = shell_input(&lineptr, &n);
+		if (eof)
+		{
+			free(lineptr);
+			free_array(aliases);
+			return (exit_status);
+		}
 		in_count++;
 		sargv = _strtok(lineptr, delim);
-		if (m_helper(sargv, &in_count, &exit_status, aliases, env))
-			return (1);
+		if (m_helper(sargv, &in_count, &exit_status, aliases, env, argv[0]))
+		{
+			free(lineptr);
+			free_array(aliases);
+			return (exit_status);
+		}
 		free_array(sargv);
+		if (exit_status >= 256)
+		{
+			free(lineptr);
+			free_array(aliases);
+			return (exit_status - 256);
+		}
 	}
 	free(lineptr);
 	free_array(aliases);
