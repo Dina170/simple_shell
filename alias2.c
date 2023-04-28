@@ -15,6 +15,7 @@ char *handle_aliasvalue(char *arg, size_t equalindex)
 	if (!new_value)
 		return (NULL);
 	_strncpy(new_value, arg, equalindex + 1);
+	new_value[equalindex + 1] = '\0';
 	_strcat(new_value, "'");
 	_strcat(new_value, arg + equalindex + 1);
 	_strcat(new_value, "'");
@@ -111,7 +112,7 @@ char *getaliasvalue(char *command, char **aliases)
 char **getalias(char **command, size_t command_argc, char **aliases)
 {
 	char *value = getaliasvalue(command[0], aliases), **tokens;
-	char **new_command = NULL, multi_alias = 0, *ff;
+	char **new_command = NULL;
 	size_t tok_argc, len, i, toki = 0, comi = 1;
 
 	if (value)
@@ -128,7 +129,7 @@ char **getalias(char **command, size_t command_argc, char **aliases)
 			free(value);
 			if (new_command)
 			{
-				multi_alias = 1, command = new_command;
+				command = new_command;
 				command_argc = tok_argc + command_argc - 1;
 			}
 			for (tok_argc = 0; tokens[tok_argc]; tok_argc++)
@@ -141,10 +142,9 @@ char **getalias(char **command, size_t command_argc, char **aliases)
 				if (toki < tok_argc)
 					new_command[i] = _strdup(tokens[toki++]);
 				else
-					ff = command[comi], new_command[i] = _strdup(command[comi++]), free(ff);
+					new_command[i] = _strdup(command[comi++]);
 			new_command[len] = NULL, free_array(tokens);
-			if (multi_alias)
-				free_array(command);
+			free_array(command);
 			value = getaliasvalue(new_command[0], aliases);
 		}
 	else

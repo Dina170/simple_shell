@@ -60,18 +60,20 @@ size_t exec(char **argv, unsigned long in_count, char **aliases,
 	actual_command = find_path(command);
 	if (actual_command)
 		pid = fork();
-	else
-		actual_command = _strdup(command);
 	if (pid == -1)
 	{
 		exit(1);
 	}
 	else if (pid == 0)
 	{
-		if (execve(actual_command, argv, env) == -1)
+		if (!actual_command)
 		{
 			errorHandler(20, in_count, argv[0], prog_name);
 			exit_status = 127;
+		}
+		else
+		{
+			execve(actual_command, argv, env);
 		}
 	}
 	else
