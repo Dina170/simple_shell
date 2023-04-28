@@ -87,7 +87,10 @@ char m_helper(char **sargv, unsigned long *inCnt, size_t *extStat,
 					if (exec_return != 1000)
 						*extStat = exec_return;
 					else
+					{
+						free_array(command);
 						return (1);
+					}
 					last_state = (!*extStat) ? 1 : 0;
 				}
 				else
@@ -138,6 +141,7 @@ int main(int argc, char *argv[], char *env[])
 		sargv = _strtok(lineptr, delim);
 		if (m_helper(sargv, &in_count, &exit_status, aliases, env, argv[0]))
 		{
+			free_array(sargv);
 			free(lineptr);
 			free_array(aliases);
 			return (exit_status);

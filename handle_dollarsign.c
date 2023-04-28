@@ -44,7 +44,10 @@ char **handle_dollarsign(char **cmd, size_t cmd_argc, size_t *ext_stat)
 			}
 		}
 		if (!containdollarsign)
-			cmd[i] = _strdup(cmd[i]);
+		{
+			tofree = cmd[i];
+			cmd[i] = _strdup(cmd[i]), free(tofree);
+		}
 	}
 	return (cmd);
 }
