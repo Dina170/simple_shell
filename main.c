@@ -177,7 +177,7 @@ int main(int argc, char *argv[], char *env[])
 		{
 			free_modified_var(), free(lineptr);
 			free_array(aliases);
-			return (exit_status);
+			return ((argv[1]) ? 2 : exit_status);
 		}
 		in_count++, sargv = _strtok(lineptr, delim);
 		removeComments(sargv);

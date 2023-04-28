@@ -61,7 +61,7 @@ void err_helper(char errnum, char **error_msg, size_t *msg_len)
 			*error_msg = ": not found";
 			break;
 		case 11:
-			*error_msg = ": Can't open ";
+			*error_msg = ": cannot open ";
 	}
 	*msg_len = _strlen(*error_msg);
 }
@@ -84,7 +84,7 @@ void errorHandler(char errnum, unsigned int in_count,
 	len = msg_len + _strlen(prog_name)
 		       + _strlen(my_itoa(in_count, buff, 10))
 		       + _strlen(farg) + 3;
-	len += (errnum == 10) ? 2 : 0;
+	len += (errnum == 10) ? 2 : (errnum == 11) ? 14 : 0;
 	shell_err = malloc(len + 1);
 	_strcpy(shell_err, prog_name), _strcat(shell_err, ": ");
 	_strcat(shell_err, buff);
@@ -96,6 +96,8 @@ void errorHandler(char errnum, unsigned int in_count,
 	_strcat(shell_err, error_msg);
 	if (farg && errnum != 10)
 		_strcat(shell_err, farg);
+	if (errnum == 11)
+		_strcat(shell_err, ": No such file");
 	_strcat(shell_err, "\n");
 	write(STDERR_FILENO, shell_err, len), free(shell_err);
 	if (errnum == 7)
