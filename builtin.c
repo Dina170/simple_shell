@@ -65,40 +65,40 @@ size_t _setenv(char **args, unsigned long in_count, char *prog_name)
 {
 	size_t size, i = 0;
 	int index, len;
-	char *new_value;
+	char *new_value, freeflag = 1;
 
 	if (!args[1] || !args[2])
 	{
 		errorHandler(2, in_count, NULL, prog_name);
 		return (2);
 	}
-	while (args[1][i])
-	{
+	for (; args[1][i]; i++)
 		if (args[1][i] == '=')
 		{
 			errorHandler(3, in_count, args[1], prog_name);
 			return (2);
 		}
-		i++;
-	}
 	new_value = malloc(_strlen(args[1]) + _strlen(args[2]) + 2);
 	if (!new_value)
 		return (2);
-	_strcpy(new_value, args[1]);
-	_strcat(new_value, "=");
-	_strcat(new_value, args[2]);
-	len = _strlen(args[1]) + 1;
+	_strcpy(new_value, args[1]), _strcat(new_value, "=");
+	_strcat(new_value, args[2]), len = _strlen(args[1]) + 1;
+	if (!_getenv("DONOT_EDIT") && create_modified_var())
+		return (2);
+	if (!check_if_appended(args[1]))
+		append_to_modified_vars(args[1]), freeflag = 0;
 	if (_getenv(args[1]))
 		for (index = 0; environ[index]; index++)
 			if (_strncmp(new_value, environ[index], len) == 0)
 			{
+				if (freeflag)
+					free(environ[index]);
 				environ[index] = new_value;
 				return (0);
 			}
 	for (size = 0; environ[size]; size++)
 		;
-	environ[size] = new_value;
-	environ[size + 1] = NULL;
+	environ[size] = new_value, environ[size + 1] = NULL;
 	return (0);
 }
 /**
@@ -120,22 +120,18 @@ size_t _unsetenv(char **args, unsigned long in_count, char *prog_name)
 		errorHandler(4, in_count, NULL, prog_name);
 		return (2);
 	}
-	while (args[1][i])
-	{
+	for (; args[1][i]; i++)
 		if (args[1][i] == '=')
 		{
 			errorHandler(5, in_count, args[1], prog_name);
 			return (2);
 		}
-		i++;
-	}
 	if (!_getenv(args[1]))
 		return (0);
 	var_equal = malloc(_strlen(args[1]) + 2);
 	if (!var_equal)
 		return (2);
-	_strcpy(var_equal, args[1]);
-	_strcat(var_equal, "=");
+	_strcpy(var_equal, args[1]), _strcat(var_equal, "=");
 	len = _strlen(args[1]) + 1;
 	for (size = 0; environ[size]; size++)
 		;
@@ -143,10 +139,11 @@ size_t _unsetenv(char **args, unsigned long in_count, char *prog_name)
 	{
 		if (_strncmp(var_equal, environ[index], len) == 0)
 		{
+			if (!_strncmp("DONOT_EDIT", args[1], len - 1) || check_if_appended(args[1]))
+				free(environ[index]);
 			continue;
 		}
-		environ[index2] = environ[index];
-		index2++;
+		environ[index2] = environ[index], index2++;
 	}
 	environ[size - 1] = NULL, free(var_equal);
 	return (0);

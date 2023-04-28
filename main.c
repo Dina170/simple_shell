@@ -124,8 +124,7 @@ int main(int argc, char *argv[], char *env[])
 	char **aliases = malloc(sizeof(char *) * 1024);
 
 	(void) argv;
-	aliases[0] = NULL;
-	signal(SIGINT, handle_sigint);
+	aliases[0] = NULL, signal(SIGINT, handle_sigint);
 	while (1 && argc == 1)
 	{
 		if (isatty(STDIN_FILENO))
@@ -133,28 +132,26 @@ int main(int argc, char *argv[], char *env[])
 		eof = shell_input(&lineptr, &n);
 		if (eof)
 		{
-			free(lineptr);
+			free_modified_var(), free(lineptr);
 			free_array(aliases);
 			return (exit_status);
 		}
-		in_count++;
-		sargv = _strtok(lineptr, delim);
+		in_count++, sargv = _strtok(lineptr, delim);
 		if (m_helper(sargv, &in_count, &exit_status, aliases, env, argv[0]))
 		{
-			free_array(sargv);
-			free(lineptr);
-			free_array(aliases);
+			free_modified_var(), free_array(sargv);
+			free(lineptr), free_array(aliases);
 			return (exit_status);
 		}
 		free_array(sargv);
 		if (exit_status >= 256)
 		{
-			free(lineptr);
+			free_modified_var(), free(lineptr);
 			free_array(aliases);
 			return (exit_status - 256);
 		}
 	}
-	free(lineptr);
-	free_array(aliases);
+	free(lineptr), free_array(aliases);
+	free_modified_var();
 	return (0);
 }

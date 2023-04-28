@@ -59,5 +59,9 @@ int defined_alias(char *, char **, size_t);
 char **getalias(char **, size_t, char **);
 void print_aliases(char **);
 char **handle_dollarsign(char **, size_t, size_t *);
+char create_modified_var(void);
+void append_to_modified_vars(char *);
+char check_if_appended(char *);
+void free_modified_var(void);
 
 #endif /* ifndef _MAIN_H_ */
