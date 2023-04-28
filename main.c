@@ -4,20 +4,45 @@
   * shell_input - gets shell input
   * @lineptr: pointer to the input string
   * @n: size of input buffer
+  * @argv: array of main arguments
   *
   * Return: 1 if EOF, 0 otherwise
   */
-size_t shell_input(char **lineptr, size_t *n)
+size_t shell_input(char **lineptr, size_t *n, char **argv)
 {
-	ssize_t reads = getline(lineptr, n, stdin);
+	ssize_t reads;
 
-	if (reads == -1)
+	if (argv[1])
 	{
-		if (isatty(STDIN_FILENO))
-			write(STDOUT_FILENO, "\n", 1);
-		return (1);
+		int fd;
+
+		*lineptr = malloc(1000);
+		if (!*lineptr)
+			return (1);
+		fd = open(argv[1], O_RDONLY);
+		if (fd == -1)
+		{
+			errorHandler(11, 0, argv[1], argv[0]);
+			return (1);
+		}
+		reads = read(fd, *lineptr, 1000);
+		if (reads == -1)
+			return (1);
+		(*lineptr)[reads] = '\0';
+		handle_newline_delim(lineptr);
+		close(fd);
 	}
-	(*lineptr)[reads] = '\0';
+	else
+	{
+		reads = getline(lineptr, n, stdin);
+		if (reads == -1)
+		{
+			if (isatty(STDIN_FILENO))
+				write(STDOUT_FILENO, "\n", 1);
+			return (1);
+		}
+		(*lineptr)[reads] = '\0';
+	}
 	return (0);
 }
 
@@ -143,13 +168,11 @@ int main(int argc, char *argv[], char *env[])
 	unsigned long in_count = 0;
 	char **aliases = malloc(sizeof(char *) * 1024);
 
-	(void) argv;
 	aliases[0] = NULL, signal(SIGINT, handle_sigint);
-	while (1 && argc == 1)
-	{
-		if (isatty(STDIN_FILENO))
+	do {
+		if (isatty(STDIN_FILENO) && argc == 1)
 			write(STDOUT_FILENO, prompt, 2);
-		eof = shell_input(&lineptr, &n);
+		eof = shell_input(&lineptr, &n, argv);
 		if (eof)
 		{
 			free_modified_var(), free(lineptr);
@@ -171,8 +194,8 @@ int main(int argc, char *argv[], char *env[])
 			free_array(aliases);
 			return (exit_status - 256);
 		}
-	}
+	} while (argc == 1);
 	free(lineptr), free_array(aliases);
 	free_modified_var();
-	return (0);
+	return (exit_status);
 }

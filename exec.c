@@ -68,7 +68,7 @@ size_t exec(char **argv, unsigned long in_count, char **aliases,
 	{
 		if (!actual_command)
 		{
-			errorHandler(20, in_count, argv[0], prog_name);
+			errorHandler(10, in_count, argv[0], prog_name);
 			exit_status = 127;
 		}
 		else

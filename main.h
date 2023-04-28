@@ -63,5 +63,6 @@ char create_modified_var(void);
 void append_to_modified_vars(char *);
 char check_if_appended(char *);
 void free_modified_var(void);
+void handle_newline_delim(char **lineptr);
 
 #endif /* ifndef _MAIN_H_ */
