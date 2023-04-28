@@ -174,12 +174,13 @@ size_t shell_cd(char **args, unsigned long in_count, char *prog_name)
 		if (_getenv("OLDPWD"))
 		{
 			getcwd(prev_dir, PATH_MAX);
-			chdir(_getenv("OLDPWD")), getcwd(current_dir, PATH_MAX);
-			write(STDOUT_FILENO, current_dir, _strlen(current_dir));
-			write(STDOUT_FILENO, "\n", 1);
+			chdir(_getenv("OLDPWD"));
 			setenv_args[0] = "setenv", setenv_args[1] = "OLDPWD";
 			setenv_args[2] = prev_dir, _setenv(setenv_args, in_count, prog_name);
 		}
+		getcwd(current_dir, PATH_MAX);
+		write(STDOUT_FILENO, current_dir, _strlen(current_dir));
+		write(STDOUT_FILENO, "\n", 1);
 	}
 	else if (args[1])
 	{

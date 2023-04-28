@@ -108,6 +108,26 @@ char m_helper(char **sargv, unsigned long *inCnt, size_t *extStat,
 }
 
 /**
+ * removeComments - remove comments from command
+ * @sargv: array of shell arguments
+ */
+void removeComments(char **sargv)
+{
+	size_t i = 0, j;
+
+	for (; sargv && sargv[i]; i++)
+	{
+		if (sargv[i][0] == '#')
+		{
+			for (j = i; sargv[j]; j++)
+				free(sargv[j]);
+			sargv[i] = NULL;
+			return;
+		}
+	}
+}
+
+/**
   * main - launch the shell
   * @argc: number of arguments
   * @argv: array of arguments
@@ -137,6 +157,7 @@ int main(int argc, char *argv[], char *env[])
 			return (exit_status);
 		}
 		in_count++, sargv = _strtok(lineptr, delim);
+		removeComments(sargv);
 		if (m_helper(sargv, &in_count, &exit_status, aliases, env, argv[0]))
 		{
 			free_modified_var(), free_array(sargv);
